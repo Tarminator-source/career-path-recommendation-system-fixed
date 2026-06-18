@@ -21,14 +21,18 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Load environment variables
-# load_dotenv()
-API_KEY = os.environ("GOOGLE_API_KEY")
+load_dotenv()
+API_KEY = os.environ.get("GOOGLE_API_KEY")
 genai.configure(api_key = API_KEY)
 
-# Initialize TTS Engine
-engine = pyttsx3.init()
-voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
+# Initialize TTS Engine (optional on headless servers)
+try:
+    engine = pyttsx3.init()
+    voices = engine.getProperty('voices')
+    if voices:
+        engine.setProperty('voice', voices[0].id)
+except Exception:
+    engine = None
 
 class VoiceBotView(APIView):
 
