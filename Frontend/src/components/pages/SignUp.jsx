@@ -1,160 +1,91 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { EarthCanvas } from "../canvas";
-import { slideIn } from "../../utils/motion";
-import { useNavigate, Link } from "react-router-dom";
-import "regenerator-runtime/runtime";
-import Swal from 'sweetalert2'
-
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import Navbar from "../Navbar";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.id]: e.target.value,
-    });
-  };
+  const handleChange = (e) => setFormData({ ...formData, [e.target.id]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.name || !formData.age || !formData.email || !formData.password) {
+      Swal.fire({ icon: "error", title: "Error", text: "All fields are required!" });
+      return;
+    }
     try {
       setLoading(true);
-
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signup/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-
-      console.log(data);
-      if (
-        data.name == "This field is required." || 
-        data.age == "This field is required." ||
-        data.email == "This field is required." ||
-        data.password == "This field is required."
-      ) {
+      if (!data.success) {
         setLoading(false);
-        Swal.fire({
-          icon: "error",
-          title: "Error...",
-          text: "All fields are required!",
-        });
+        Swal.fire({ icon: "error", title: "Error", text: "An account with this email already exists." });
         return;
       }
-      else if(data.success!=true){
-        Swal.fire({
-          icon: "error",
-          title: "Error...",
-          text: "User Already Exist.",
-        });
-  
-        return
-      }
-      else{
-        Swal.fire({
-          icon: "success",
-          title: "User Registered Successfully",
-          showConfirmButton: false,
-          timer: 1500
-        });
-        setLoading(false);
-        navigate("/quiz");}
-      
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userName", formData.name);
+      Swal.fire({ icon: "success", title: "Account Created!", showConfirmButton: false, timer: 1500 });
+      setLoading(false);
+      navigate("/quiz");
     } catch (error) {
       setLoading(false);
+      Swal.fire({ icon: "error", title: "Error", text: "Something went wrong. Try again." });
     }
   };
 
   return (
-    <div
-      className={`xl:mt-0 flex xl:flex-row flex-col-reverse gap-10 overflow-hidden min-h-screen`}
-    >
-      <motion.div
-        variants={slideIn("left", "tween", 0.2, 1)}
-        className="flex-[0.75] p-8 rounded-2xl"
-      >
-        <h3 className="font-semibold text-4xl my-10 text-center">User Registration</h3>
+    <div className="min-h-screen bg-[#050510] text-white flex flex-col">
+      <Navbar />
+      <div className="flex-1 flex items-center justify-center px-6 pt-24 pb-12">
+        <div className="w-full max-w-md">
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+            <div className="text-center mb-8">
+              <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🚀</span>
+              </div>
+              <h2 className="text-2xl font-bold">Create Your Account</h2>
+              <p className="text-gray-400 mt-1">Start your career discovery journey</p>
+            </div>
 
-        <form className="mt-12 flex flex-col gap-8">
-          <label className="flex flex-col">
-            <span className="text-white font-medium mb-4">Your Name</span>
-            <input
-              type="text"
-              id="name"
-              placeholder="What's your name?"
-              className="bg-transparent py-4 px-6 placeholder:text-secondary text-white rounded border font-medium"
-              onChange={handleChange}
-            />
-          </label>
-          <label className="flex flex-col">
-            <span className="text-white font-medium mb-4">Your Age</span>
-            <input
-              type="text"
-              id="age"
-              placeholder="What's your Age?"
-              className="bg-transparent py-4 px-6 placeholder:text-secondary text-white rounded border font-medium"
-              onChange={handleChange}
-            />
-          </label>
-          <label className="flex flex-col">
-            <span className="text-white font-medium mb-4">Your email</span>
-            <input
-              type="email"
-              id="email"
-              placeholder="What's your email?"
-              className="bg-transparent py-4 px-6 placeholder:text-secondary text-white rounded border font-medium"
-              onChange={handleChange}
-            />
-          </label>
-          <label className="flex flex-col">
-            <span className="text-white font-medium mb-4">Password</span>
-            <input
-              type="password"
-              id="password"
-              placeholder="your Password?"
-              className="bg-transparent py-4 px-6 placeholder:text-secondary text-white rounded border font-medium"
-              onChange={handleChange}
-            />
-          </label>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              {[
+                { id: "name", label: "Full Name", type: "text", placeholder: "John Doe" },
+                { id: "age", label: "Age", type: "number", placeholder: "22" },
+                { id: "email", label: "Email", type: "email", placeholder: "you@email.com" },
+                { id: "password", label: "Password", type: "password", placeholder: "••••••••" },
+              ].map((field) => (
+                <div key={field.id}>
+                  <label className="text-sm text-gray-400 mb-1 block">{field.label}</label>
+                  <input
+                    type={field.type} id={field.id} placeholder={field.placeholder}
+                    onChange={handleChange}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-violet-500 transition-colors"
+                  />
+                </div>
+              ))}
 
-          <div className="flex flex-row justify-center">
+              <button
+                type="submit" disabled={loading}
+                className="w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl font-semibold hover:from-violet-700 hover:to-indigo-700 transition-all disabled:opacity-50 mt-2"
+              >
+                {loading ? "Creating Account..." : "Create Account →"}
+              </button>
+            </form>
 
-            <button
-              type="submit"
-              className="py-3 px-8 rounded-xl bg-red-600 w-fit text-black font-bold shadow-md shadow-primary hover:bg-red-400"
-              onClick={handleSubmit}
-            >
-              {loading ? "Register..." : "Register"}
-            </button>
-
+            <p className="text-center text-gray-400 text-sm mt-6">
+              Already have an account?{" "}
+              <Link to="/signin" className="text-violet-400 hover:text-violet-300 font-medium">Sign In</Link>
+            </p>
           </div>
-          
-
-          <div className="flex gap-10 items-center justify-center">
-            <p className="">Already have an Account?</p>
-            <Link
-              className="py-3 px-8 rounded-xl bg-red-600 w-fit text-black font-bold shadow-md shadow-primary hover:bg-red-400"
-              to={"/signin"}
-            >
-              Sign In
-            </Link>
-          </div>
-        </form>
-      </motion.div>
-
-      <motion.div
-        variants={slideIn("right", "tween", 0.2, 1)}
-        className="xl:flex-1 xl:h-auto md:h-[550px] h-[350px]"
-      >
-        <EarthCanvas />
-      </motion.div>
+        </div>
+      </div>
     </div>
   );
 };

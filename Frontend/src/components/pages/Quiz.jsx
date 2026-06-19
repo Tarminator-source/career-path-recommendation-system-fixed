@@ -1,490 +1,210 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { slideIn } from "../../utils/motion";
-import { TypeAnimation } from "react-type-animation";
-import { HiOutlineChevronDoubleDown } from "react-icons/hi";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "regenerator-runtime/runtime";
+import Swal from "sweetalert2";
+import Navbar from "../Navbar";
 
 const Quiz = () => {
-
   const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
-    question1: "", // Numeric
-    question2: "", // Numeric
-    question3: "", // Numeric
-    question4: "", // Numeric
-    question5: "", // Numeric
-    question6: "", // Numeric
-    question7: "", // Categorical
-    question8: "", // Categorical
-    question9: "", // Numeric
-    question10: "",
-    question11: "", // Numeric
-    question12: "", // Categorical
-    question13: "", // Numeric
-    question14: "", // Numeric
-    question15: "",
-    question16: "", // Numeric
-    question17: "", // Categorical
-    question18: "", // Numeric
-    question19: "", // Numeric
+    question1: "", question2: "", question3: "", question4: "",
+    question5: "", question6: "", question7: "", question8: "",
+    question9: "", question10: "", question11: "", question12: "",
+    question13: "", question14: "", question15: "", question16: "",
+    question17: "", question18: "", question19: "",
   });
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const questions = [
+    { key: "question1", label: "How would you rate your logical reasoning skills?", type: "number", min: 1, max: 9, hint: "Rate from 1 (low) to 9 (high)" },
+    { key: "question2", label: "How many hackathons have you participated in?", type: "number", min: 0, max: 6, hint: "Enter a number from 0 to 6" },
+    { key: "question3", label: "How would you rate your coding skills?", type: "number", min: 1, max: 9, hint: "Rate from 1 (low) to 9 (high)" },
+    { key: "question4", label: "How would you rate your public speaking skills?", type: "number", min: 1, max: 9, hint: "Rate from 1 (low) to 9 (high)" },
+    { key: "question5", label: "Do you consider yourself good at self-learning?", type: "select", options: [{ value: "1", label: "Yes" }, { value: "0", label: "No" }] },
+    { key: "question6", label: "Have you completed extra courses outside formal education?", type: "select", options: [{ value: "1", label: "Yes" }, { value: "0", label: "No" }] },
+    { key: "question7", label: "Which certification do you have?", type: "select", options: [
+      { value: "R Programming", label: "R Programming" },
+      { value: "Information Security", label: "Information Security" },
+      { value: "Shell Programming", label: "Shell Programming" },
+      { value: "Machine Learning", label: "Machine Learning" },
+      { value: "Full Stack", label: "Full Stack" },
+      { value: "Hadoop", label: "Hadoop" },
+      { value: "Python", label: "Python" },
+      { value: "Distro Making", label: "Distro Making" },
+      { value: "App Development", label: "App Development" },
+    ]},
+    { key: "question8", label: "Which workshop have you attended?", type: "select", options: [
+      { value: "Database Security", label: "Database Security" },
+      { value: "System Designing", label: "System Designing" },
+      { value: "Web Technologies", label: "Web Technologies" },
+      { value: "Machine Learning", label: "Machine Learning" },
+      { value: "Hacking", label: "Hacking" },
+      { value: "Testing", label: "Testing" },
+      { value: "Data Science", label: "Data Science" },
+      { value: "Game Development", label: "Game Development" },
+      { value: "Cloud Computing", label: "Cloud Computing" },
+    ]},
+    { key: "question9", label: "How would you rate your reading and writing skills?", type: "select", options: [{ value: "0", label: "Poor" }, { value: "1", label: "Medium" }, { value: "2", label: "Excellent" }] },
+    { key: "question10", label: "How would you rate your memory capability?", type: "select", options: [{ value: "0", label: "Poor" }, { value: "1", label: "Medium" }, { value: "2", label: "Excellent" }] },
+    { key: "question11", label: "Which subjects are you most interested in?", type: "select", options: [
+      { value: "0", label: "Software Engineering" }, { value: "1", label: "IOT" },
+      { value: "2", label: "Cloud Computing" }, { value: "3", label: "Programming" },
+      { value: "4", label: "Networks" }, { value: "5", label: "Computer Architecture" },
+      { value: "6", label: "Data Engineering" }, { value: "7", label: "Hacking" },
+      { value: "8", label: "Management" }, { value: "9", label: "Parallel Computing" },
+    ]},
+    { key: "question12", label: "What is your preferred career area?", type: "select", options: [
+      { value: "0", label: "System Developer" }, { value: "1", label: "Security" },
+      { value: "2", label: "Business Process Analyst" }, { value: "3", label: "Developer" },
+      { value: "4", label: "Testing" }, { value: "5", label: "Cloud Computing" },
+    ]},
+    { key: "question13", label: "What type of company would you like to work for?", type: "select", options: [
+      { value: "0", label: "Service Based" }, { value: "1", label: "Web Services" },
+      { value: "2", label: "BPA" }, { value: "3", label: "Testing & Maintenance" },
+      { value: "4", label: "Product Based" }, { value: "5", label: "Finance" },
+      { value: "6", label: "Cloud Services" }, { value: "7", label: "Product Development" },
+      { value: "8", label: "Sales & Marketing" }, { value: "9", label: "SaaS Services" },
+    ]},
+    { key: "question14", label: "Do you take advice from seniors or elders?", type: "select", options: [{ value: "1", label: "Yes" }, { value: "0", label: "No" }] },
+    { key: "question15", label: "What types of books do you enjoy reading?", type: "select", options: [
+      { value: "0", label: "Guide" }, { value: "1", label: "Health" }, { value: "2", label: "Self Help" },
+      { value: "3", label: "Horror" }, { value: "4", label: "Biographies" }, { value: "5", label: "Science Fiction" },
+      { value: "6", label: "Satire" }, { value: "7", label: "Children" }, { value: "8", label: "Autobiographies" },
+      { value: "9", label: "Prayer Books" }, { value: "10", label: "Fantasy" }, { value: "11", label: "Journals" },
+      { value: "12", label: "Trilogy" }, { value: "13", label: "Anthology" }, { value: "14", label: "Encyclopedias" },
+      { value: "15", label: "Drama" }, { value: "16", label: "Mystery" }, { value: "17", label: "History" },
+      { value: "18", label: "Science" }, { value: "19", label: "Dictionaries" }, { value: "20", label: "Diaries" },
+      { value: "21", label: "Religion/Spirituality" }, { value: "22", label: "Action & Adventure" },
+      { value: "23", label: "Poetry" }, { value: "24", label: "Cookbooks" }, { value: "25", label: "Comics" },
+      { value: "26", label: "Art" }, { value: "27", label: "Travel" }, { value: "28", label: "Series" },
+      { value: "29", label: "Math" }, { value: "30", label: "Romance" },
+    ]},
+    { key: "question16", label: "Do you prefer management roles over technical roles?", type: "select", options: [{ value: "1", label: "Yes, Management" }, { value: "0", label: "No, Technical" }] },
+    { key: "question17", label: "Do you consider yourself a hard worker or smart worker?", type: "select", options: [{ value: "0", label: "Hard Worker" }, { value: "1", label: "Smart Worker" }] },
+    { key: "question18", label: "Have you ever worked in a team?", type: "select", options: [{ value: "1", label: "Yes" }, { value: "0", label: "No" }] },
+    { key: "question19", label: "Are you an introvert?", type: "select", options: [{ value: "1", label: "Yes" }, { value: "0", label: "No" }] },
+  ];
+
+  const current = questions[currentStep];
+  const progress = ((currentStep) / questions.length) * 100;
+
+  const handleChange = (value) => {
+    setFormData({ ...formData, [current.key]: value });
   };
 
-  // const fetchUserDetails = async () => {
+  const handleNext = () => {
+    if (!formData[current.key] && formData[current.key] !== "0") {
+      Swal.fire({ icon: "warning", title: "Please answer this question", timer: 1500, showConfirmButton: false });
+      return;
+    }
+    if (currentStep < questions.length - 1) setCurrentStep(currentStep + 1);
+  };
 
-  //   try{
-  //   const response = await fetch(`${import.meta.env.VITE_API_URL}/api/get/user/`, {
-  //     method: 'GET',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       'Authorization': `Bearer ${localStorage.getItem('token')}`, // Assuming you store the token in localStorage
-  //     },
-  //   });
-  //   if (response.ok) {
-  //     const data = await response.json();
-  //     console.log(data.name)
-  //     setUserName(data.name);
-  //   } else {
-  //     console.error('Failed to fetch user details');
-  //   }
-  // }catch(error)
-  // {
-  //   console.error('Error:', error);
-  // }
-  // };
+  const handleBack = () => {
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
+  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
+    if (!formData[current.key] && formData[current.key] !== "0") {
+      Swal.fire({ icon: "warning", title: "Please answer this question", timer: 1500, showConfirmButton: false });
+      return;
+    }
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/get/quiz/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
-      console.log(formData);
-
       const data = await res.json();
-
-      navigate("/predict", {
-        state: {
-          prediction: data.prediction,
-          probability: data.probability,
-        },
-      });
-
-      console.log(data);
+      navigate("/predict", { state: { prediction: data.prediction, probability: data.probability } });
     } catch (error) {
-      console.error(error);
+      Swal.fire({ icon: "error", title: "Error", text: "Something went wrong. Please try again." });
     }
   };
 
-
-  // useEffect (() => {
-  //     fetchUserDetails()
-  // },[])
-
   return (
-    <div className="flex flex-col gap-10 overflow-hidden min-h-full sm:max-h-fit">
-      <motion.div
-        variants={slideIn("left", "tween", 0.2, 1)}
-        className="flex-[0.75] p-8 rounded-xl"
-      >
-        <div className="text-center">
-          {/* <p className="">Hello, {userName}</p> */}
-          <TypeAnimation
-            className="text-cyan-600 font-semibold text-6xl my-10"
-            sequence={["Are you passionate to see your future ?"]}
-            wrapper="span"
-            cursor={false}
-            style={{ display: "inline-block" }}
-          />
-          <div className="flex flex-row gap-8 text-center justify-center">
-            <p className="text-red-500 text-3xl font-semibold">Try the Quiz</p>
-            <button
-              type="button"
-              className="animate-bounce items-center focus:animate-none inline-flex text-md font-medium bg-red-600 mt-3 px-4 py-2 rounded-lg tracking-wide text-white cursor-text"
-            >
-              <HiOutlineChevronDoubleDown />
-            </button>
+    <div className="min-h-screen bg-[#050510] text-white flex flex-col">
+      <Navbar />
+      <div className="flex-1 flex items-center justify-center px-6 pt-24 pb-12">
+        <div className="w-full max-w-2xl">
+
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold mb-2">Career Assessment Quiz</h1>
+            <p className="text-gray-400">Answer honestly — there are no right or wrong answers</p>
+          </div>
+
+          {/* Progress bar */}
+          <div className="mb-8">
+            <div className="flex justify-between text-sm text-gray-400 mb-2">
+              <span>Question {currentStep + 1} of {questions.length}</span>
+              <span>{Math.round(progress)}% complete</span>
+            </div>
+            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Question Card */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-6">
+            <p className="text-gray-400 text-sm mb-2">Question {currentStep + 1}</p>
+            <h2 className="text-xl font-semibold mb-6">{current.label}</h2>
+
+            {current.type === "number" ? (
+              <div>
+                <input
+                  type="number"
+                  min={current.min} max={current.max}
+                  value={formData[current.key]}
+                  onChange={(e) => handleChange(e.target.value)}
+                  placeholder={`Enter ${current.min}–${current.max}`}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-lg focus:outline-none focus:border-violet-500 transition-colors"
+                />
+                {current.hint && <p className="text-gray-500 text-sm mt-2">{current.hint}</p>}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3">
+                {current.options.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => handleChange(opt.value)}
+                    className={`text-left px-4 py-3 rounded-xl border transition-all ${
+                      formData[current.key] === opt.value
+                        ? "bg-violet-600/30 border-violet-500 text-white"
+                        : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:border-white/20"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Navigation */}
+          <div className="flex gap-4">
+            {currentStep > 0 && (
+              <button onClick={handleBack}
+                className="flex-1 py-3 bg-white/5 border border-white/10 rounded-xl font-semibold hover:bg-white/10 transition-all">
+                ← Back
+              </button>
+            )}
+            {currentStep < questions.length - 1 ? (
+              <button onClick={handleNext}
+                className="flex-1 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl font-semibold hover:from-violet-700 hover:to-indigo-700 transition-all">
+                Next →
+              </button>
+            ) : (
+              <button onClick={handleSubmit}
+                className="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all">
+                🔮 Reveal My Career Path
+              </button>
+            )}
           </div>
         </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="mt-12 mx-48 flex flex-col gap-8 justify-items-center "
-        >
-          <div className="flex flex-col">
-            <label>
-              (1) How would you rate your logical reasoning skills on a scale
-              from 1 to 9?
-            </label>
-            <input
-              type="number"
-              name="question1"
-              value={formData.question1}
-              onChange={handleChange}
-              min="1"
-              max="9"
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label>(2) How many hackathons have you participated in ?</label>
-            <input
-              type="number"
-              name="question2"
-              value={formData.question2}
-              onChange={handleChange}
-              min="0"
-              max="6"
-              className="bg-transparent py-4 px-6  ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label>
-              (3) How would you rate your coding skills on a scale from 1 to 9 ?
-            </label>
-            <input
-              type="number"
-              name="question3"
-              value={formData.question3}
-              onChange={handleChange}
-              min="1"
-              max="9"
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label>
-              (4) How would you rate your public speaking skills on a scale from
-              1 to 9 ?
-            </label>
-            <input
-              type="number"
-              name="question4"
-              value={formData.question4}
-              onChange={handleChange}
-              min="1"
-              max="9"
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label>(5) Do you consider yourself good at self-learning ?</label>
-            <select
-              name="question5"
-              value={formData.question5}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="1">Yes</option>
-              <option value="0">No</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>
-              (6) Have you completed any extra courses outside your formal
-              education ?
-            </label>
-            <select
-              name="question6"
-              value={formData.question6}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="1">Yes</option>
-              <option value="0">No</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>
-              (7) Which of the following certifications do you have?
-            </label>
-            <select
-              name="question7"
-              value={formData.question7}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="R Programming">R Programming</option>
-              <option value="Information Security">Information Security</option>
-              <option value="Shell Programming">Shell Programming</option>
-              <option value="Machine Learning">Machine Learning</option>
-              <option value="Full Stack">Full Stack</option>
-              <option value="Hadoop">Hadoop</option>
-              <option value="Python">Python</option>
-              <option value="Distro Making">Distro Making</option>
-              <option value="App Development">App Development</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>
-              (8) Which of the following workshops have you attended ?
-            </label>
-            <select
-              name="question8"
-              value={formData.question8}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="Database Security">Database Security</option>
-              <option value="System Designing">System Designing</option>
-              <option value="Web Technologies">Web Technologies</option>
-              <option value="Hacking">Hacking</option>
-              <option value="Testing">Testing</option>
-              <option value="Data Science">Data Science</option>
-              <option value="Game Development">Game Development</option>
-              <option value="Cloud Computing">Cloud Computing</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>
-              (9) How would you rate your reading and writing skills ?
-            </label>
-            <select
-              name="question9"
-              value={formData.question9}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="0">Poor</option>
-              <option value="1">Medium</option>
-              <option value="2">Excellent</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>(10) How would you rate your memory capability ?</label>
-            <select
-              name="question10"
-              value={formData.question10}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="0">Poor</option>
-              <option value="1">Medium</option>
-              <option value="2">Excellent</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>(11) Which subjects are you most interested in ?</label>
-            <select
-              name="question11"
-              value={formData.question11}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="0">Software Engineering</option>
-              <option value="1">IOT</option>
-              <option value="2">Cloud Computing</option>
-              <option value="3">Programming</option>
-              <option value="4">Networks</option>
-              <option value="5">Computer Architecture</option>
-              <option value="6">Data Engineering</option>
-              <option value="7">Hacking</option>
-              <option value="8">Management</option>
-              <option value="9">Parallel Computing</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>(12) What is your preferred career area ?</label>
-            <select
-              name="question12"
-              value={formData.question12}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="0">System Developer</option>
-              <option value="1">Security</option>
-              <option value="2">Business Process Analyst</option>
-              <option value="3">Developer</option>
-              <option value="4">Testing</option>
-              <option value="5">Cloud Computing</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>
-              (13) What type of company would you like to work for ?
-            </label>
-            <select
-              name="question13"
-              value={formData.question13}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="0">Service Based</option>
-              <option value="1">Web Services</option>
-              <option value="2">BPA</option>
-              <option value="3">Testing and Maintenance Services</option>
-              <option value="4">Product Based</option>
-              <option value="5">Finance</option>
-              <option value="6">Cloud Services</option>
-              <option value="7">Product Development</option>
-              <option value="8">Sales and Marketing</option>
-              <option value="9">SAaS Services</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>(14) Do you take advice from seniors or elders ?</label>
-            <select
-              name="question14"
-              value={formData.question14}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="1">Yes</option>
-              <option value="0">No</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>(15) What types of books do you enjoy reading ?</label>
-            <select
-              name="question15"
-              value={formData.question15}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="0">Guide</option>
-              <option value="1">Health</option>
-              <option value="2">Self help</option>
-              <option value="3">Horror</option>
-              <option value="4">Biographies</option>
-              <option value="5">Science fiction</option>
-              <option value="6">Satire</option>
-              <option value="7">Children</option>
-              <option value="8">Autobiographies</option>
-              <option value="9">Prayer books</option>
-              <option value="10">Fantasy</option>
-              <option value="11">Journals</option>
-              <option value="12">Trilogy</option>
-              <option value="13">Anthology</option>
-              <option value="14">Encyclopedias</option>
-              <option value="15">Drama</option>
-              <option value="16">Mystery</option>
-              <option value="17">History</option>
-              <option value="18">Science</option>
-              <option value="19">Dictionaries</option>
-              <option value="20">Diaries</option>
-              <option value="21">Religion-Spirituality</option>
-              <option value="22">Action and Adventure</option>
-              <option value="23">Poetry</option>
-              <option value="24">Cookbooks</option>
-              <option value="25">Comics</option>
-              <option value="26">Art</option>
-              <option value="27">Travel</option>
-              <option value="28">Series</option>
-              <option value="29">Math</option>
-              <option value="30">Romance</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>(16) Do you prefer management or technical roles ?</label>
-            <select
-              name="question16"
-              value={formData.question16}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="1">Yes</option>
-              <option value="0">No</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>
-              (17) Do you consider yourself a hard worker or a smart worker ?
-            </label>
-            <select
-              name="question17"
-              value={formData.question17}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="0">Hard Worker</option>
-              <option value="1">Smart Worker</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>(18) Have you ever worked in a team ?</label>
-            <select
-              name="question18"
-              value={formData.question18}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="1">Yes</option>
-              <option value="0">No</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label>(19) Are you an introvert ?</label>
-            <select
-              name="question19"
-              value={formData.question19}
-              onChange={handleChange}
-              className="bg-transparent py-4 px-6 ml-16 mt-5 placeholder:text-secondary text-red-400 rounded border font-medium bg-black"
-            >
-              <option value="">Select an option</option>
-              <option value="1">Yes</option>
-              <option value="0">No</option>
-            </select>
-          </div>
-          <div className="flex flex-row justify-center items-center">
-            <button
-              type="submit"
-              className=" py-3 px-8 rounded-xl bg-red-600 w-fit hover:bg-red-500 text-white font-semibold shadow-md shadow-primary"
-            >
-              Let's See Your Future
-            </button>
-          </div>
-        </form>
-      </motion.div>
-      <motion.div
-        variants={slideIn("right", "tween", 0.2, 1)}
-        className="xl:flex-1 xl:h-auto md:h-[550px] h-[350px]"
-      ></motion.div>
+      </div>
     </div>
   );
 };
