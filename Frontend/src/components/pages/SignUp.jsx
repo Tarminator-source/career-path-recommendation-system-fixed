@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { EarthCanvas } from "../canvas";
 import { slideIn } from "../../utils/motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "regenerator-runtime/runtime";
 import Swal from 'sweetalert2'
 
@@ -137,16 +137,15 @@ const SignUp = () => {
           </div>
           
 
-          {/* <div className="flex gap-10 items-center">
+          <div className="flex gap-10 items-center justify-center">
             <p className="">Already have an Account?</p>
             <Link
-              className="py-3 px-8 rounded-xl bg-red-600 w-fit text-black font-bold shadow-md shadow-primary
-                          hover:bg-red-400"
+              className="py-3 px-8 rounded-xl bg-red-600 w-fit text-black font-bold shadow-md shadow-primary hover:bg-red-400"
               to={"/signin"}
             >
               Sign In
             </Link>
-          </div> */}
+          </div>
         </form>
       </motion.div>
 
